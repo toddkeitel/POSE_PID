@@ -111,9 +111,31 @@ public:
 		return &m_Temp[0];
 	}
 
+	T* Get(unsigned int _index)
+	{
+		T* retvalue = nullptr;
+		if (_index < eEndOfQuaternionItems)
+		{
+			retvalue = &m_Q[_index];
+		}
+		return retvalue;
+	}
+
+	T GetYawError(Quaternion* _prev)
+	{
+		T qError[eEndOfQuaternionItems];
+		for (unsigned int iI = 0; iI < eEndOfQuaternionItems; ++iI)
+		{
+			qError[iI] = m_Q[iI] - _prev->Get()[iI];
+		}
+		T sinY_cosp = T(2) * ((qError[eW] * qError[eZ]) + (qError[eX] * qError[eY]));
+		T cosY_cosp = T(1) - T(2) * ((qError[eY] * qError[eY]) + (qError[eZ] * qError[eZ]));
+		return static_cast<T>(std::atan2(sinY_cosp, cosY_cosp));
+	}
 private:
 	T m_Q[eEndOfQuaternionItems];
 	T m_Temp[eEndOfQuaternionItems];
 	Quaternion* m_TempQuat;
 
 };
+

@@ -58,6 +58,10 @@ int main()
 		temp = (QTransform * prevOrientationQuat);
 		prevTargetOrientationQuat = (temp * (*ConjugateQTransform));
 
+		MyType yawerror = currentTargetOrientationQuat.GetYawError(&prevTargetOrientationQuat);
+		std::cout << "Target Frame Yaw Error = " << yawerror << std::endl;
+		
+
 		//compute the velocities
 		for (int iI = 0; iI < AXISCOUNT; ++iI)
 		{
