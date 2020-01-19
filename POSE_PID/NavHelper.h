@@ -118,7 +118,7 @@ public:
 		{
 			T* outputValue = _output->Get(iI);
 
-			for (unsigned int jJ = 0; jJ < _rank; ++iI)
+			for (unsigned int jJ = 0; jJ < _rank; ++jJ)
 			{
 				T* inputValue = _input->Get(jJ);
 				if ((nullptr != outputValue) && (nullptr != inputValue))
