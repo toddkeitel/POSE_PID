@@ -76,14 +76,14 @@ private:
 
 	void Show(const char* _name, T _value)
 	{
-		static const char[3] delimiter = { " ", ",", " " };
-		std::cout << m_ShowCounter << delimiter << _name << delimiter << _value << std::endl;
+		static const std::string delimiter(" , ");
+
+		std::cout << m_ShowCounter << delimiter.c_str() << _name << delimiter.c_str() << _value << std::endl;
 	}
 
 public:
 	PID(T* _kp, T* _ki, T* _kd, T _deltatime)
 		: m_DeltaTime(_deltatime)
-		, m_Error(0)
 		, m_ShowCounter(0)
 	{
 		m_OutputString[0].assign("Output Vector X-Term");
@@ -111,6 +111,7 @@ public:
 		for(unsigned int iI = 0; iI < AXISCOUNT; ++iI)
 		{
 			m_IntegSum[iI] = T(0);
+			m_Error[iI] = T(0);
 			m_PrevError[iI] = T(0);
 		}
 		m_ShowCounter = 0;
@@ -130,7 +131,7 @@ public:
 			UpdatePrevValue(iI);
 			++m_ShowCounter;
 		}
-		return m_Output[0];
+		return &m_Output[0];
 	}
 
 };

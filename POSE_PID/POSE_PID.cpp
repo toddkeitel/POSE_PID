@@ -10,15 +10,15 @@ int main()
 {
 	typedef float MyType;
 	static const unsigned int AXISCOUNT = 3;
-	static const MyType DELTATIME = 0.001; // must not be zero
+	static const MyType DELTATIME = MyType(0.001); // must not be zero
 	typedef Quaternion<MyType> MyQuaternion;
 	typedef NavHelper<MyType, AXISCOUNT>  MyNavHelper;
 	typedef PID<MyType, AXISCOUNT> MyPID;
 
 	//some sample PID gains needed by the code
-	static const MyType PGAIN[AXISCOUNT] = { 0.7, 0.7, 0.7 };
-	static const MyType IGAIN[AXISCOUNT] = {0.02, 0.02, 0.02};
-	static const MyType DGAIN[AXISCOUNT] = { 0.05, 0.05, 0.05 };
+	static MyType PGAIN[AXISCOUNT] = { MyType(0.7), MyType(0.7), MyType(0.7) };
+	static MyType IGAIN[AXISCOUNT] = { MyType(0.02), MyType(0.02), MyType(0.02) };
+	static MyType DGAIN[AXISCOUNT] = { MyType(0.05), MyType(0.05), MyType(0.05) };
 
 	MyQuaternion currentOrientationQuat;
 	MyQuaternion prevOrientationQuat;
@@ -35,6 +35,7 @@ int main()
 	MyPID PIDController(&PGAIN[0], &IGAIN[0], &DGAIN[0], DELTATIME);
 	MyType velocities[AXISCOUNT];
 	MyType command[AXISCOUNT];
+	MyType* velocityVectorOutput = nullptr;
 
    //Here we would obtain current PTransform, and QTransform
    // bool run = GetRunState();
@@ -45,8 +46,8 @@ int main()
 		// Next, we convert the present and previous mobile frame data to target frame.
 
 		//position translation first
-		navHelper.Transformer(&PTransform[0][0], AXISCOUNT, &currentPositionMobileFrame, &currentPositionTargetFrame);
-		navHelper.Transformer(&PTransform[0][0], AXISCOUNT, &prevPositionMobileFrame, &prevPositionTargetFrame);
+		navHelper.Transformer(PTransform, AXISCOUNT, &currentPositionMobileFrame, &currentPositionTargetFrame);
+		navHelper.Transformer(PTransform, AXISCOUNT, &prevPositionMobileFrame, &prevPositionTargetFrame);
 
 		// Next translate the quaternions
 		ConjugateQTransform = navHelper.Conjucate(&QTransform);
@@ -68,6 +69,7 @@ int main()
 		//we would get the command value here
 		// GetUpdatedCommand(&command[0]);
 		//Run the PID Controller on this position based velocity signal
-		MyPID.Run(&velocities[0], &command[0]);
+		velocityVectorOutput = PIDController.Run(&velocities[0], &command[0]);
+		
 	}
 }

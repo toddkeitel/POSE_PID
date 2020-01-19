@@ -17,6 +17,7 @@ public:
 	};
 
 	Quaternion()
+		: m_TempQuat(nullptr)
 	{
 		for (int iI = 0; iI < eEndOfQuaternionItems; ++iI)
 		{
@@ -25,6 +26,7 @@ public:
 	}
 
 	Quaternion(T* _quaternion)
+		: m_TempQuat(nullptr)
 	{
 		Set(_quaternion);
 	}
@@ -42,7 +44,7 @@ public:
 	void Set(T _angle, T* _axis)
 	{
 		m_Q[eW] = std::cos(_angle / T(2));
-		T sinfactor = std::sin(angle / T(2));
+		T sinfactor = std::sin(_angle / T(2));
 		m_Q[eX] = sinfactor * _axis[eX];
 		m_Q[eY] = sinfactor * _axis[eY];
 		m_Q[eZ] = sinfactor * _axis[eZ];
@@ -53,7 +55,7 @@ public:
 		bool success = false;
 		if ((_index >= eX) && (_index <= eW))
 		{
-			Set(_value, static_cast<QuaternionItems(_index));
+			Set(_value, static_cast<QuaternionItems>(_index));
 			success = true;
 		}
 		return success;
@@ -68,30 +70,35 @@ public:
 	{
 		for (int iI = 0; iI < eEndOfQuaternionItems; ++iI)
 		{
-			m_Q[iI] = _from->Get()[iI];
+			m_Q[iI] = _from.Get()[iI];
 		}
-		reurn* this;
+		return* this;
 	}
 
 	Quaternion<T> operator* ( Quaternion<T> _rhs)
 	{
-		m_Temp[eW] = _rhs.Get()[eW] - (m_Q[eX] * _rhs.Get()[eX])
-									- (m_Q[eY] * _rhs.Get()[eY])
-									- (m_Q[eZ] * _rhs.Get()[eZ]);
+		if (nullptr == m_TempQuat)
+		{
+			m_TempQuat = new Quaternion();
+		}
 
-		m_Temp[eX] = _rhs.Get()[eX] + (m_Q[eX] * _rhs.Get()[eW])
-							1		+ (m_Q[eY] * _rhs.Get()[eZ])
-									- (m_Q[eZ] * _rhs.Get()[eY]);
+		m_TempQuat->Set(_rhs.Get()[eW]  - (m_Q[eX] * _rhs.Get()[eX])
+										- (m_Q[eY] * _rhs.Get()[eY])
+										- (m_Q[eZ] * _rhs.Get()[eZ]), eW);
 
-		m_Temp[eY] = _rhs.Get()[eY] + (m_Q[eY] * _rhs.Get()[eW])
-									+ (m_Q[eZ] * _rhs.Get()[eX])
-									- (m_Q[eX] * _rhs.Get()[eZ]);
+		m_TempQuat->Set(_rhs.Get()[eX]  + (m_Q[eX] * _rhs.Get()[eW])
+										+ (m_Q[eY] * _rhs.Get()[eZ])
+										- (m_Q[eZ] * _rhs.Get()[eY]), eX);
 
-		m_Temp[eZ] = _rhs.Get()[eZ] + (m_Q[eZ] * _rhs.Get()[eW])
-									+ (m_Q[eX] * _rhs.Get()[eY])
-									- (m_Q[eY] * _rhs.Get()[eX]);
+		m_TempQuat->Set(_rhs.Get()[eY] + (m_Q[eY] * _rhs.Get()[eW])
+										+ (m_Q[eZ] * _rhs.Get()[eX])
+										- (m_Q[eX] * _rhs.Get()[eZ]), eY);
 
-		return m_Temp;
+		m_TempQuat->Set(_rhs.Get()[eZ] + (m_Q[eZ] * _rhs.Get()[eW])
+										+ (m_Q[eX] * _rhs.Get()[eY])
+										- (m_Q[eY] * _rhs.Get()[eX]), eZ);
+
+		return *m_TempQuat;
 	}
 
 
@@ -105,8 +112,8 @@ public:
 	}
 
 private:
-	T m_Q[4];
-	T m_Temp;
-	Quaternion m_Temp;
+	T m_Q[eEndOfQuaternionItems];
+	T m_Temp[eEndOfQuaternionItems];
+	Quaternion* m_TempQuat;
 
 };

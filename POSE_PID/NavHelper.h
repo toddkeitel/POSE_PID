@@ -71,7 +71,6 @@ public:
 	};
 
 	NavHelper()
-		: m_EPS(ComputeEPS())
 	{
 		
 	}
@@ -102,11 +101,11 @@ public:
 		return &m_QuantTempConjucate;
 	}
 
-	void Transformer(T* _transform, int _rank, Position* _input, Position* _output)
+	void Transformer(T _transform[][AXIS_COUNT], unsigned int _rank, Position* _input, Position* _output)
 	{
 		// _transform[col][row] format is assumed
 
-		for (int iI = 0; iI < _rank; ++iI)
+		for (unsigned int iI = 0; iI < _rank; ++iI)
 		{
 			T* value = _output->Get(iI);
 			if (nullptr != value)
@@ -115,16 +114,16 @@ public:
 			}
 		}
 
-		for (int iI = 0; iI < _rank; ++iI)
+		for (unsigned int iI = 0; iI < _rank; ++iI)
 		{
 			T* outputValue = _output->Get(iI);
 
-			for (int jJ = 0; jJ < _rank; ++iI)
+			for (unsigned int jJ = 0; jJ < _rank; ++iI)
 			{
 				T* inputValue = _input->Get(jJ);
-				if ((nullptr != outputValue) && (nullptr != intputValue))
+				if ((nullptr != outputValue) && (nullptr != inputValue))
 				{
-					*outputvalue += *inputValue * _transform[iI][jJ];
+					*outputValue += *inputValue * _transform[iI][jJ];
 				}
 			}
 		}
@@ -133,22 +132,8 @@ public:
 
 
 private:
-	T m_EPS;
 	Quaternion<T> m_QuantTempNormalize3;
 	Quaternion<T> m_QuantTempConjucate;
-
-	// Compute the epsilon of the machine for the given data type
-	T ComputeEPS()
-	{
-		T start = T(2);
-		T last = start/T(2);
-		while (last == start*T(2))
-		{
-			last = start;
-			start /= T(2);
-		}
-		return last;
-	}
 };
 
 
